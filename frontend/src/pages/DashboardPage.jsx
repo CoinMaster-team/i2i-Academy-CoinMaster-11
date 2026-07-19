@@ -155,16 +155,6 @@ function DashboardPage() {
         </Link>
 
         <div className="dashboard-nav-actions">
-          <button
-            type="button"
-            className="notification-button"
-            aria-label="Refresh prices"
-            onClick={loadDashboard}
-          >
-            R
-            <span className="notification-dot" />
-          </button>
-
           <button type="button" className="logout-button" onClick={handleLogout}>
             Logout
           </button>
