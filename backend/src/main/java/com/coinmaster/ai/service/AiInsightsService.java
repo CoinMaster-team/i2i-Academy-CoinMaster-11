@@ -6,6 +6,7 @@ import com.coinmaster.ai.dto.AiInsightResponse;
 import com.coinmaster.ai.market.RecentPriceTrendProvider;
 import com.coinmaster.ai.prompt.AiPromptBuilder;
 import com.coinmaster.market.CurrentPriceProvider;
+import com.coinmaster.market.SupportedSymbols;
 import com.coinmaster.portfolio.dto.PortfolioResponse;
 import com.coinmaster.portfolio.service.PortfolioService;
 import com.coinmaster.trading.dto.TradeHistoryItem;
@@ -47,11 +48,10 @@ public class AiInsightsService {
         List<TradeHistoryItem> recentTrades = portfolioService.getTradeHistory(userId, 20);
 
         Map<String, Object> context = new LinkedHashMap<>();
-        context.put("marketMode", "SIMULATED");
-        context.put("currentMarketPrices", Map.of(
-                "BTC", currentPriceProvider.getRequiredPrice("BTC"),
-                "ETH", currentPriceProvider.getRequiredPrice("ETH")
-        ));
+        context.put("marketMode", "LIVE_BINANCE_OR_LOCAL_SIMULATION");
+        Map<String, Object> currentMarketPrices = new LinkedHashMap<>();
+        SupportedSymbols.ALL.forEach(symbol -> currentMarketPrices.put(symbol, currentPriceProvider.getRequiredPrice(symbol)));
+        context.put("currentMarketPrices", currentMarketPrices);
         context.put("portfolio", portfolio);
         context.put("recentTrades", recentTrades);
         context.put("recentPriceTrends", trendProvider.recentTrends(20));

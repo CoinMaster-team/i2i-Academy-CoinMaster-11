@@ -33,6 +33,7 @@ coinmaster:
   market:
     ticker-enabled: ${TICKER_ENABLED:true}
     ticker-rate-ms: ${TICKER_RATE_MS:15000}
+    binance-url: ${BINANCE_URL:https://api.binance.com/api/v3/ticker/price}
     redis-price-prefix: ${REDIS_PRICE_PREFIX:PRICE:}
     redis-session-prefix: ${REDIS_SESSION_PREFIX:SESSION:}
   ai:

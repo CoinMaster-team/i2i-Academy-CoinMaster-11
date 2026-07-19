@@ -1,5 +1,6 @@
 package com.coinmaster.ai.market;
 
+import com.coinmaster.market.SupportedSymbols;
 import com.coinmaster.market.CurrentPriceProvider;
 import jakarta.annotation.PostConstruct;
 import java.time.Instant;
@@ -17,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Profile("local")
 public class LocalRecentPriceTrendProvider implements RecentPriceTrendProvider {
 
-    private static final List<String> SYMBOLS = List.of("BTC", "ETH");
+    private static final List<String> SYMBOLS = SupportedSymbols.ALL;
     private static final int MAX_SNAPSHOTS = 100;
 
     private final CurrentPriceProvider priceProvider;

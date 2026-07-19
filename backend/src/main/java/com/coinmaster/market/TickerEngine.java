@@ -1,6 +1,7 @@
 package com.coinmaster.market;
 
 import com.coinmaster.market.entity.PriceHistory;
+import com.coinmaster.market.dto.BinancePriceResponse;
 import com.coinmaster.market.repository.PriceHistoryRepository;
 import jakarta.annotation.PostConstruct;
 import java.math.BigDecimal;
@@ -8,32 +9,37 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 @Profile("!local")
 public class TickerEngine {
 
+    private static final String DEFAULT_BINANCE_URL = "https://api.binance.com/api/v3/ticker/price";
+
     private final Map<String, BigDecimal> currentPrices = new ConcurrentHashMap<>();
     private final StringRedisTemplate redisTemplate;
     private final PriceHistoryRepository repository;
     private final String pricePrefix;
+    private final String binanceUrl;
+    private final RestTemplate restTemplate = new RestTemplate();
 
     public TickerEngine(
             StringRedisTemplate redisTemplate,
             PriceHistoryRepository repository,
-            @Value("${coinmaster.market.redis-price-prefix}") String pricePrefix
+            @Value("${coinmaster.market.redis-price-prefix}") String pricePrefix,
+            @Value("${coinmaster.market.binance-url:" + DEFAULT_BINANCE_URL + "}") String binanceUrl
     ) {
         this.redisTemplate = redisTemplate;
         this.repository = repository;
         this.pricePrefix = pricePrefix;
-        currentPrices.put("BTC", new BigDecimal("65000.00000000"));
-        currentPrices.put("ETH", new BigDecimal("3500.00000000"));
+        this.binanceUrl = binanceUrl;
+        currentPrices.putAll(SupportedSymbols.INITIAL_PRICES);
     }
 
     @PostConstruct
@@ -45,20 +51,30 @@ public class TickerEngine {
     }
 
     @Scheduled(fixedRateString = "${coinmaster.market.ticker-rate-ms}")
-    public void generatePrices() {
-        updateAndSavePrice("BTC", new BigDecimal("500.00"));
-        updateAndSavePrice("ETH", new BigDecimal("50.00"));
+    public void fetchLivePrices() {
+        try {
+            BinancePriceResponse[] prices = restTemplate.getForObject(binanceUrl, BinancePriceResponse[].class);
+            if (prices == null) {
+                return;
+            }
+
+            Map<String, String> pairToSymbol = SupportedSymbols.BINANCE_USDT_PAIRS.entrySet().stream()
+                    .collect(java.util.stream.Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+            for (BinancePriceResponse price : prices) {
+                String symbol = pairToSymbol.get(price.getSymbol());
+                if (symbol != null) {
+                    updateAndSavePrice(symbol, new BigDecimal(price.getPrice()));
+                }
+            }
+        } catch (Exception exception) {
+            System.err.println("Cannot reach Binance API. Keeping last known prices. Reason: " + exception.getMessage());
+        }
     }
 
-    private void updateAndSavePrice(String symbol, BigDecimal maxChange) {
-        BigDecimal oldPrice = currentPrices.get(symbol);
-        BigDecimal change = BigDecimal.valueOf(ThreadLocalRandom.current().nextDouble(
-                maxChange.negate().doubleValue(),
-                maxChange.doubleValue()
-        ));
-        BigDecimal newPrice = oldPrice.add(change).max(BigDecimal.ONE).setScale(8, RoundingMode.HALF_UP);
-        currentPrices.put(symbol, newPrice);
-        redisTemplate.opsForValue().set(pricePrefix + symbol, newPrice.toPlainString());
-        repository.save(new PriceHistory(symbol, newPrice, Instant.now()));
+    private void updateAndSavePrice(String symbol, BigDecimal price) {
+        BigDecimal normalizedPrice = price.max(new BigDecimal("0.00000001")).setScale(8, RoundingMode.HALF_UP);
+        currentPrices.put(symbol, normalizedPrice);
+        redisTemplate.opsForValue().set(pricePrefix + symbol, normalizedPrice.toPlainString());
+        repository.save(new PriceHistory(symbol, normalizedPrice, Instant.now()));
     }
 }

@@ -8,11 +8,27 @@ import '../App.css'
 const assetNames = {
   BTC: 'Bitcoin',
   ETH: 'Ethereum',
+  BNB: 'BNB',
+  XRP: 'XRP',
+  SOL: 'Solana',
+  TRX: 'TRON',
+  DOGE: 'Dogecoin',
+  USDT: 'Tether',
+  USDC: 'USD Coin',
+  USDS: 'USDS',
 }
 
 const assetIcons = {
   BTC: 'B',
   ETH: 'E',
+  BNB: 'N',
+  XRP: 'X',
+  SOL: 'S',
+  TRX: 'T',
+  DOGE: 'D',
+  USDT: 'T',
+  USDC: 'U',
+  USDS: 'U',
 }
 
 function formatCurrency(value) {
@@ -92,11 +108,20 @@ function DashboardPage() {
       icon: assetIcons[price.symbol] ?? price.symbol[0],
       price: price.price,
       formattedPrice: formatCurrency(price.price),
-      iconClass: price.symbol === 'BTC' ? 'bitcoin-icon' : 'ethereum-icon',
+      iconClass: `crypto-icon-${price.symbol.toLowerCase()}`,
       ownedQuantity: position?.quantity ?? 0,
       canSell: Number(position?.quantity ?? 0) > 0,
     }
   })
+
+  const totalPortfolioValue = Number(portfolio?.totalPortfolioValue ?? 0)
+  const totalCryptoValue = Number(portfolio?.totalCryptoValue ?? 0)
+  const cryptoAllocation = totalPortfolioValue > 0
+    ? Math.min(100, Math.max(0, (totalCryptoValue / totalPortfolioValue) * 100))
+    : 0
+  const lastUpdated = portfolio?.asOf
+    ? new Date(portfolio.asOf).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    : 'Syncing'
 
   async function handleSendMessage() {
     const question = message.trim()
@@ -173,22 +198,55 @@ function DashboardPage() {
         <section className="dashboard-top-grid">
           <article className="dashboard-card balance-panel">
             <div className="balance-heading">
-              <span className="wallet-icon">$</span>
-              <h2>Total Balance</h2>
+              <div className="balance-title">
+                <span className="wallet-icon">$</span>
+
+                <div>
+                  <span className="balance-eyebrow">Portfolio value</span>
+                  <h2>Total Balance</h2>
+                </div>
+              </div>
+
+              <span className="balance-updated">
+                <span aria-hidden="true" />
+                {lastUpdated}
+              </span>
             </div>
 
             <div className="balance-content">
-              <div>
-                <strong>{formatCurrency(portfolio?.cashBalance)}</strong>
+              <div className="balance-total">
+                <strong>{formatCurrency(portfolio?.totalPortfolioValue)}</strong>
+                <p>Cash and crypto combined</p>
               </div>
 
-              <div className="mini-chart">
-                <span />
-                <span />
-                <span />
-                <span />
-                <span />
-                <span />
+              <div className="balance-breakdown">
+                <div className="balance-metric">
+                  <span>Available cash</span>
+                  <strong>{formatCurrency(portfolio?.cashBalance)}</strong>
+                </div>
+
+                <div className="balance-metric">
+                  <span>Crypto assets</span>
+                  <strong>{formatCurrency(portfolio?.totalCryptoValue)}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div className="balance-allocation">
+              <div className="allocation-label">
+                <span>Portfolio allocation</span>
+                <strong>{Math.round(cryptoAllocation)}% crypto</strong>
+              </div>
+
+              <div
+                className="allocation-track"
+                role="progressbar"
+                aria-label="Crypto allocation"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow={Math.round(cryptoAllocation)}
+              >
+                <span style={{ width: `${cryptoAllocation}%` }} />
               </div>
             </div>
           </article>
@@ -257,12 +315,12 @@ function DashboardPage() {
               {(portfolio?.positions ?? []).map((asset) => (
                 <div className="portfolio-item" key={asset.symbol}>
                   <div className="portfolio-asset">
-                    <span className={`crypto-icon ${asset.symbol === 'BTC' ? 'bitcoin-icon' : 'ethereum-icon'}`}>
-                      {assetIcons[asset.symbol]}
+                    <span className={`crypto-icon crypto-icon-${asset.symbol.toLowerCase()}`}>
+                      {assetIcons[asset.symbol] ?? asset.symbol[0]}
                     </span>
 
                     <div>
-                      <h3>{assetNames[asset.symbol]}</h3>
+                      <h3>{assetNames[asset.symbol] ?? asset.symbol}</h3>
                       <p>{asset.symbol}</p>
                     </div>
                   </div>

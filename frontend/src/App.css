@@ -341,48 +341,188 @@
   display: grid;
   grid-template-columns: 0.95fr 1.9fr;
   gap: 22px;
+  align-items: start;
 }
 
 .balance-panel {
-  min-height: 280px;
-  padding: 28px;
-  border-color: rgba(20, 184, 166, 0.75);
+  position: relative;
+  min-width: 0;
+  min-height: 360px;
+  padding: 26px;
+  overflow: hidden;
+  border-color: rgba(45, 212, 191, 0.52);
+  background:
+    linear-gradient(160deg, rgba(15, 118, 110, 0.18), transparent 42%),
+    linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(7, 14, 27, 0.98));
+  box-shadow:
+    0 20px 45px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.balance-panel::after {
+  position: absolute;
+  right: -12%;
+  bottom: 0;
+  width: 64%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(45, 212, 191, 0.6));
+  content: '';
 }
 
 .balance-heading {
   display: flex;
   align-items: center;
-  gap: 15px;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.balance-title {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
 .wallet-icon {
-  width: 56px;
-  height: 56px;
-  border: 1px solid #14b8a6;
-  border-radius: 14px;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(45, 212, 191, 0.55);
+  border-radius: 12px;
   display: grid;
   place-items: center;
-  background: rgba(20, 184, 166, 0.12);
+  background: rgba(20, 184, 166, 0.14);
   color: #5eead4;
-  font-size: 25px;
+  font-size: 22px;
+  font-weight: 800;
+  box-shadow: inset 0 0 18px rgba(45, 212, 191, 0.06);
+}
+
+.balance-eyebrow {
+  display: block;
+  margin-bottom: 4px;
+  color: #7dd3fc;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.balance-updated {
+  flex: 0 0 auto;
+  padding: 6px 9px;
+  border: 1px solid rgba(51, 65, 85, 0.9);
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(2, 6, 23, 0.36);
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.balance-updated > span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.7);
 }
 
 .balance-content {
   margin-top: 34px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
 }
 
-.balance-content strong {
-  font-size: 42px;
+.balance-total {
+  min-width: 0;
+}
+
+.balance-total > strong {
+  display: block;
+  color: #ffffff;
+  font-size: 40px;
+  line-height: 1.08;
+  overflow-wrap: anywhere;
+}
+
+.balance-total p {
+  margin: 8px 0 0;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.balance-breakdown {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(51, 65, 85, 0.65);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 18px;
+}
+
+.balance-metric {
+  min-width: 0;
+}
+
+.balance-metric + .balance-metric {
+  padding-left: 18px;
+  border-left: 1px solid rgba(51, 65, 85, 0.65);
+}
+
+.balance-metric span {
+  display: block;
+  margin-bottom: 7px;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.balance-metric strong {
+  display: block;
+  color: #e2e8f0;
+  font-size: 16px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.balance-allocation {
+  margin-top: 24px;
+}
+
+.allocation-label {
+  margin-bottom: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.allocation-label strong {
+  color: #5eead4;
+  font-size: 11px;
+}
+
+.allocation-track {
+  width: 100%;
+  height: 7px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #1e293b;
+}
+
+.allocation-track > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #14b8a6, #22d3ee);
+  transition: width 0.35s ease;
 }
 
 .positive-text {
   color: #34d399 !important;
 }
 
-.mini-chart,
 .price-chart {
   height: 75px;
   display: flex;
@@ -390,7 +530,6 @@
   gap: 5px;
 }
 
-.mini-chart span,
 .price-chart span {
   width: 14px;
   border-radius: 6px 6px 0 0;
@@ -402,33 +541,24 @@
     );
 }
 
-.mini-chart span:nth-child(1),
 .price-chart span:nth-child(1) {
   height: 22%;
 }
 
-.mini-chart span:nth-child(2),
 .price-chart span:nth-child(2) {
   height: 40%;
 }
 
-.mini-chart span:nth-child(3),
 .price-chart span:nth-child(3) {
   height: 34%;
 }
 
-.mini-chart span:nth-child(4),
 .price-chart span:nth-child(4) {
   height: 58%;
 }
 
-.mini-chart span:nth-child(5),
 .price-chart span:nth-child(5) {
   height: 70%;
-}
-
-.mini-chart span:nth-child(6) {
-  height: 92%;
 }
 
 .market-panel {
@@ -443,10 +573,21 @@
 }
 
 .market-card {
-  padding: 22px;
+  min-width: 0;
+  padding: 20px;
   border: 1px solid #1e293b;
-  border-radius: 16px;
+  border-radius: 12px;
   background: rgba(15, 23, 42, 0.65);
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.market-card:hover {
+  border-color: #334155;
+  background: rgba(17, 27, 45, 0.9);
+  transform: translateY(-2px);
 }
 
 .crypto-header,
@@ -469,12 +610,40 @@
   font-weight: 800;
 }
 
-.bitcoin-icon {
+.bitcoin-icon,
+.crypto-icon-btc {
   background: linear-gradient(145deg, #f59e0b, #f97316);
 }
 
-.ethereum-icon {
+.ethereum-icon,
+.crypto-icon-eth {
   background: linear-gradient(145deg, #818cf8, #4338ca);
+}
+
+.crypto-icon-bnb {
+  background: linear-gradient(145deg, #facc15, #ca8a04);
+}
+
+.crypto-icon-xrp {
+  background: linear-gradient(145deg, #64748b, #0f172a);
+}
+
+.crypto-icon-sol {
+  background: linear-gradient(145deg, #14f195, #9945ff);
+}
+
+.crypto-icon-trx {
+  background: linear-gradient(145deg, #ef4444, #991b1b);
+}
+
+.crypto-icon-doge {
+  background: linear-gradient(145deg, #d6b35a, #8a6f24);
+}
+
+.crypto-icon-usdt,
+.crypto-icon-usdc,
+.crypto-icon-usds {
+  background: linear-gradient(145deg, #22c55e, #0f766e);
 }
 
 .crypto-header h3,
@@ -1067,14 +1236,21 @@
     grid-template-columns: 1fr;
   }
 
-  .balance-content {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 30px;
+  .balance-panel {
+    min-height: 0;
+    padding: 22px;
   }
 
-  .balance-content strong {
-    font-size: 34px;
+  .balance-total > strong {
+    font-size: 32px;
+  }
+
+  .balance-breakdown {
+    gap: 14px;
+  }
+
+  .balance-metric + .balance-metric {
+    padding-left: 14px;
   }
 
   .portfolio-item,
@@ -1084,6 +1260,18 @@
 }
 
 @media (max-width: 520px) {
+  .balance-heading {
+    align-items: flex-start;
+  }
+
+  .balance-updated {
+    padding: 6px;
+  }
+
+  .balance-updated > span {
+    display: none;
+  }
+
   .trade-modal-window {
     padding: 24px;
   }

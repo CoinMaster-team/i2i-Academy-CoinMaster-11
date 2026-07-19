@@ -1,6 +1,8 @@
 package com.coinmaster.ai.market;
 
+import com.coinmaster.market.SupportedSymbols;
 import com.coinmaster.market.repository.PriceHistoryRepository;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.context.annotation.Profile;
@@ -20,10 +22,9 @@ public class DbRecentPriceTrendProvider implements RecentPriceTrendProvider {
     @Override
     public Map<String, List<PriceTrendPoint>> recentTrends(int limitPerSymbol) {
         int limit = Math.max(1, Math.min(limitPerSymbol, 100));
-        return Map.of(
-                "BTC", trend("BTC", limit),
-                "ETH", trend("ETH", limit)
-        );
+        Map<String, List<PriceTrendPoint>> result = new LinkedHashMap<>();
+        SupportedSymbols.ALL.forEach(symbol -> result.put(symbol, trend(symbol, limit)));
+        return result;
     }
 
     private List<PriceTrendPoint> trend(String symbol, int limit) {

@@ -18,8 +18,7 @@ public class LocalCurrentPriceProvider implements CurrentPriceProvider {
     private final Map<String, BigDecimal> prices = new ConcurrentHashMap<>();
 
     public LocalCurrentPriceProvider() {
-        prices.put("BTC", new BigDecimal("65000.00000000"));
-        prices.put("ETH", new BigDecimal("3500.00000000"));
+        prices.putAll(SupportedSymbols.INITIAL_PRICES);
     }
 
     @Override
@@ -33,8 +32,7 @@ public class LocalCurrentPriceProvider implements CurrentPriceProvider {
 
     @Scheduled(fixedRateString = "${coinmaster.market.ticker-rate-ms}")
     public void generatePrices() {
-        updatePrice("BTC", new BigDecimal("500.00"));
-        updatePrice("ETH", new BigDecimal("50.00"));
+        SupportedSymbols.LOCAL_MAX_CHANGES.forEach(this::updatePrice);
     }
 
     private void updatePrice(String symbol, BigDecimal maxChange) {

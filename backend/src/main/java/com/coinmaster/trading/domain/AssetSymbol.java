@@ -6,7 +6,15 @@ import java.util.Locale;
 
 public enum AssetSymbol {
     BTC,
-    ETH;
+    ETH,
+    BNB,
+    XRP,
+    SOL,
+    TRX,
+    DOGE,
+    USDT,
+    USDC,
+    USDS;
 
     public static AssetSymbol parse(String value) {
         if (value == null || value.isBlank()) {

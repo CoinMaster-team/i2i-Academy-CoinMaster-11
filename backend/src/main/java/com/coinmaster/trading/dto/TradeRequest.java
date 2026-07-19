@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public record TradeRequest(
         @NotBlank
-        @Schema(example = "BTC", allowableValues = {"BTC", "ETH"})
+        @Schema(example = "BTC", allowableValues = {"BTC", "ETH", "BNB", "XRP", "SOL", "TRX", "DOGE", "USDT", "USDC", "USDS"})
         String symbol,
 
         @NotNull
